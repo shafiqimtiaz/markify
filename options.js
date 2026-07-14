@@ -9,6 +9,10 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSettings();
   document.getElementById('saveBtn').addEventListener('click', saveSettings);
   document.getElementById('resetBtn').addEventListener('click', resetSettings);
+  document.getElementById('shortcutsLink').addEventListener('click', e => {
+    e.preventDefault();
+    chrome.tabs.create({ url: 'chrome://extensions/shortcuts' });
+  });
 });
 
 function loadSettings() {
