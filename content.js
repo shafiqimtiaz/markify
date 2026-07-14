@@ -54,6 +54,14 @@
       }
       return true;
     }
+    if (msg.type === 'COPY_TO_CLIPBOARD') {
+      navigator.clipboard.writeText(msg.text).then(() => {
+        sendResponse({ success: true });
+      }).catch(e => {
+        sendResponse({ success: false, error: e.message });
+      });
+      return true;
+    }
   });
 
   // ──────────────────────────────────────────────

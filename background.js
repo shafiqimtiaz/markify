@@ -105,10 +105,18 @@ async function ensureContentScript(tab) {
 }
 
 async function copyAndFlash(text, tabId) {
-  try { await navigator.clipboard.writeText(text); } catch {
-    await chrome.scripting.executeScript({
-      target: { tabId }, func: t => navigator.clipboard.writeText(t), args: [text]
-    });
+  // Use content script isolated world for clipboard (clipboardWrite permission applies)
+  try {
+    await chrome.tabs.sendMessage(tabId, { type: 'COPY_TO_CLIPBOARD', text });
+  } catch {
+    // Fallback: inject into page as last resort
+    try {
+      await chrome.scripting.executeScript({
+        target: { tabId },
+        func: t => navigator.clipboard.writeText(t),
+        args: [text]
+      });
+    } catch {}
   }
   chrome.action.setBadgeText({ text: '✓ MD', tabId });
   chrome.action.setBadgeBackgroundColor({ color: '#16a34a', tabId });
