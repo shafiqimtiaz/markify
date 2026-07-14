@@ -45,7 +45,7 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
     try {
       const resp = await chrome.tabs.sendMessage(tab.id, { type: 'CONVERT_SELECTION' });
       if (resp?.result) await copyAndFlash(resp.result, tab.id);
-    } catch (e) { console.error('Selection convert:', e); }
+    } catch (e) { flashBadge('✗ ERR', '#dc2626', tab.id); }
     return;
   }
 
@@ -57,22 +57,18 @@ chrome.contextMenus.onClicked.addListener(async (info, tab) => {
         options: { includeTitle: true, includeMetadata: true, keepLinks: true, keepImages: true, codeBlocks: true, smartExtract: true }
       });
       if (resp?.result) {
-        if (id === 'page-convert-copy') {
-          await copyAndFlash(resp.result, tab.id);
-        } else {
-          // Open popup so user sees the result
-          // We can't programmatically open popup in MV3, so copy + flash as feedback
-          await copyAndFlash(resp.result, tab.id);
-        }
+        await copyAndFlash(resp.result, tab.id);
+      } else if (resp?.error) {
+        flashBadge('✗ ' + resp.error, '#dc2626', tab.id);
       }
-    } catch (e) { console.error('Page convert:', e); }
+    } catch (e) { flashBadge('✗ ERR', '#dc2626', tab.id); }
     return;
   }
 });
 
 // --- Keyboard shortcuts ---
 chrome.commands.onCommand.addListener(async (command, tab) => {
-  if (!tab?.id || !tab.url?.startsWith('http')) return;
+  if (!tab?.id) return;
   await ensureContentScript(tab);
 
   if (command === 'convert-page') {
@@ -82,26 +78,30 @@ chrome.commands.onCommand.addListener(async (command, tab) => {
         options: { includeTitle: true, includeMetadata: true, keepLinks: true, keepImages: true, codeBlocks: true, smartExtract: true }
       });
       if (resp?.result) await copyAndFlash(resp.result, tab.id);
-    } catch (e) { console.error('Shortcut:', e); }
+      else if (resp?.error) flashBadge('✗ ' + resp.error, '#dc2626', tab.id);
+    } catch (e) { flashBadge('✗ ERR', '#dc2626', tab.id); }
+    return;
   }
 
   if (command === 'convert-selection') {
     try {
       const resp = await chrome.tabs.sendMessage(tab.id, { type: 'CONVERT_SELECTION' });
       if (resp?.result) await copyAndFlash(resp.result, tab.id);
-    } catch (e) { console.error('Shortcut sel:', e); }
+    } catch (e) { flashBadge('✗ ERR', '#dc2626', tab.id); }
   }
 });
 
 // --- Helpers ---
 async function ensureContentScript(tab) {
   try { await chrome.tabs.sendMessage(tab.id, { type: 'PING' }); return; } catch {}
-  if (tab.url?.startsWith('http')) {
+  // tab.url may be undefined in MV3 callbacks (no 'tabs' permission).
+  // Just try injecting — executeScript fails gracefully on non-HTTP pages.
+  try {
     await chrome.scripting.executeScript({
       target: { tabId: tab.id },
       files: ['turndown.js', 'turndown-plugin-gfm.js', 'content.js']
     });
-  }
+  } catch {}
 }
 
 async function copyAndFlash(text, tabId) {
@@ -118,8 +118,12 @@ async function copyAndFlash(text, tabId) {
       });
     } catch {}
   }
-  chrome.action.setBadgeText({ text: '✓ MD', tabId });
-  chrome.action.setBadgeBackgroundColor({ color: '#16a34a', tabId });
+  flashBadge('✓ MD', '#16a34a', tabId);
+}
+
+async function flashBadge(text, color, tabId) {
+  chrome.action.setBadgeText({ text, tabId });
+  chrome.action.setBadgeBackgroundColor({ color, tabId });
   chrome.action.setBadgeTextColor({ color: '#ffffff', tabId });
-  setTimeout(() => chrome.action.setBadgeText({ text: '', tabId }), 1500);
+  setTimeout(() => chrome.action.setBadgeText({ text: '', tabId }), 2000);
 }
