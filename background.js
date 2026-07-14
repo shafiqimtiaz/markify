@@ -1,5 +1,5 @@
 /**
- * Background service worker — Markdown This Page v3.0
+ * Background service worker — Markify v3.0
  * Markdown-only context menus + keyboard shortcuts
  */
 

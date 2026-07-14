@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
-  "name": "Markdown This Page",
+  "name": "Markify",
   "version": "4.0.0",
-  "description": "Convert any web page to clean Markdown. Confidence-scored site detection (25+ types), Readability-style fallback extraction, code-aware post-processing, and lazy-load image unwrapping for production-grade output.",
+  "description": "Convert any web page to clean Markdown. Smart site detection, fallback extraction, and code-aware output for production use.",
   "permissions": [
     "activeTab",
     "scripting",
@@ -25,7 +25,7 @@
       "48": "icons/icon48.png",
       "128": "icons/icon128.png"
     },
-    "default_title": "Markdown This Page"
+    "default_title": "Markify"
   },
   "icons": {
     "16": "icons/icon16.png",

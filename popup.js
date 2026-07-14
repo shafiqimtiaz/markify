@@ -1,4 +1,4 @@
-/* Markdown This Page v3.0 — Popup Script */
+/* Markify v3.0 — Popup Script */
 let currentMarkdown = '';
 let detectedSiteType = '';
 

@@ -1,5 +1,5 @@
 /**
- * Markdown This Page v4.0 — Content Script
+ * Markify v4.0 — Content Script
  *
  * Philosophy (inspired by microsoft/markitdown & Mozilla Readability):
  *   Different website types need different extraction strategies.
@@ -1962,10 +1962,10 @@
   }
 
   function log(...args) {
-    if (DEBUG) console.log('[MTP v' + VERSION + ']', ...args);
+    if (DEBUG) console.log('[Markify v' + VERSION + ']', ...args);
   }
 
   // Mark script as loaded.
-  console.log('[Markdown This Page v' + VERSION + '] Content script loaded. Site type:',
+  console.log('[Markify v' + VERSION + '] Content script loaded. Site type:',
     detectSiteType().type);
 })();
